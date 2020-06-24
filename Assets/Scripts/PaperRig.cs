@@ -133,6 +133,7 @@ public class PaperRig : MonoBehaviour
     {
         if (this._renderer == null)
         {
+            Debug.LogWarning("Seems like target object is missing renderer!");
             return;
         }
 
@@ -151,6 +152,13 @@ public class PaperRig : MonoBehaviour
         this._renderer.SetPropertyBlock(this._propertyBlock);
     }
 
+    public void BendRenerer()
+    {
+        this.GetPointsAB();
+        this.GetBendCenter();
+        this.MaterialPropertyBlockUpdate();
+    }
+
     private void OnEnable()
     {
         this.GetRenderer();
@@ -158,9 +166,13 @@ public class PaperRig : MonoBehaviour
 
     private void Update()
     {
-        this.GetPointsAB();
-        this.GetBendCenter();
-        this.MaterialPropertyBlockUpdate();
+        this.BendRenerer();
+    }
+
+    private void OnValidate()
+    {
+        this.GetRenderer();
+        this.BendRenerer();
     }
 
     private bool Validate()
