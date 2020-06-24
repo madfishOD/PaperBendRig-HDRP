@@ -1,5 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [SuppressMessage("ReSharper", "RedundantDefaultMemberInitializer")]
 public class PaperRig : MonoBehaviour
@@ -18,7 +20,7 @@ public class PaperRig : MonoBehaviour
     /// <summary>
     /// GameObjects and state fields 
     /// </summary>
-    [SerializeField] private GameObject _bendGameObject = null;
+    [SerializeField] private GameObject _targetObj = null;
     [SerializeField] private Transform _bendTransform = null;
     [SerializeField] private float _bendRadius = 10;
     [SerializeField] private float _bendPhase = 0;
@@ -27,21 +29,36 @@ public class PaperRig : MonoBehaviour
     private Vector3 _pointA;
     private Vector3 _pointB;
     private Renderer _renderer;
-    private BoxCollider _collider;
     private MaterialPropertyBlock _propertyBlock;
+    private BoxCollider _collider;
 
     public bool IsValid => this.Validate();
 
-    public void Initialize()
+    public void GetRenderer()
     {
         if (this.IsValid == false)
         {
+            Debug.LogWarning("Target object and its bend transform should be assigned first!");
             return;
         }
 
-        this._renderer = this._bendGameObject.GetComponent<Renderer>();
-        this._propertyBlock = new MaterialPropertyBlock();
+        var obj = this._targetObj;
+
+        this._collider = obj.GetComponent<BoxCollider>();
+
+        if (this._collider == null)
+        {
+            this._collider = obj.AddComponent<BoxCollider>();
+        }
+
+        this._renderer = obj.GetComponent<Renderer>();
+
+        if (this._renderer == null)
+        {
+            Debug.LogException(new NullReferenceException(), this);
+        }
     }
+
 
     public void GetPointsAB()
     {
@@ -50,7 +67,7 @@ public class PaperRig : MonoBehaviour
             return;
         }
 
-        var objTransform = this._bendGameObject.transform;
+        var objTransform = this._targetObj.transform;
         var bendNormal = this._bendTransform.forward;
         var bendPosition = this._bendTransform.position;
         var bounds = this._collider.bounds;
@@ -103,38 +120,54 @@ public class PaperRig : MonoBehaviour
         }
 
         // Assign values
-        this._pointA = projPts[indexA];
-        this._pointB = projPts[indexB];
+        this._pointA = objTransform.InverseTransformPoint(projPts[indexA]);
+        this._pointB = objTransform.InverseTransformPoint(projPts[indexB]);
+    }
+
+    public void GetBendCenter()
+    {
+        this._bendCenter = this._pointB + (this._bendTransform.up * this._bendRadius);
     }
 
     public void MaterialPropertyBlockUpdate()
     {
+        if (this._renderer == null)
+        {
+            return;
+        }
+
+        if (this._propertyBlock == null)
+        {
+            this._propertyBlock = new MaterialPropertyBlock();
+        }
+
+        this._propertyBlock.SetMatrix(BendMatrix, this._bendTransform.worldToLocalMatrix);
+        this._propertyBlock.SetMatrix(InvBendMatrix, this._bendTransform.localToWorldMatrix);
+        this._propertyBlock.SetVector(PtA, this._pointA);
+        this._propertyBlock.SetVector(PtB, this._pointB);
+        this._propertyBlock.SetVector(Center, this._bendCenter);
+        this._propertyBlock.SetFloat(Radius, this._bendRadius);
+
         this._renderer.SetPropertyBlock(this._propertyBlock);
     }
 
     private void OnEnable()
     {
-        this.Initialize();
+        this.GetRenderer();
     }
 
     private void Update()
     {
         this.GetPointsAB();
+        this.GetBendCenter();
         this.MaterialPropertyBlockUpdate();
     }
 
     private bool Validate()
     {
-        if (this._bendGameObject == null || this._bendTransform == null)
+        if (this._targetObj == null || this._bendTransform == null)
         {
             return false;
-        }
-
-        this._collider = this._bendGameObject.GetComponent<BoxCollider>();
-
-        if (this._collider == null)
-        {
-            this._collider = this._bendGameObject.AddComponent<BoxCollider>();
         }
 
         return true;
