@@ -1,9 +1,18 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
-using UnityEngine.Serialization;
+
+public struct HandlesData
+{
+    public Vector3 Center;
+    public Vector3 Normal;
+    public Vector3 PtA;
+    public Vector3 PtB;
+    public float Radius;
+}
 
 [SuppressMessage("ReSharper", "RedundantDefaultMemberInitializer")]
+[ExecuteInEditMode]
 public class PaperRig : MonoBehaviour
 {
     /// <summary>
@@ -20,7 +29,7 @@ public class PaperRig : MonoBehaviour
     /// <summary>
     /// GameObjects and state fields 
     /// </summary>
-    [SerializeField] private GameObject _targetObj = null;
+    [SerializeField] private GameObject _bendTarget = null;
     [SerializeField] private Transform _bendTransform = null;
     [SerializeField] private float _bendRadius = 10;
     [SerializeField] private float _bendPhase = 0;
@@ -28,11 +37,30 @@ public class PaperRig : MonoBehaviour
     private Vector3 _bendCenter;
     private Vector3 _pointA;
     private Vector3 _pointB;
+    private Vector3 _worldPointA;
+    private Vector3 _worldPointB;
     private Renderer _renderer;
     private MaterialPropertyBlock _propertyBlock;
     private BoxCollider _collider;
 
     public bool IsValid => this.Validate();
+
+    public Vector3 BendCenter => this._bendTarget.transform.TransformPoint(this._bendCenter);
+
+    public Vector3 BendNormal => this._bendTransform.forward;
+
+    public float BendRadius => this._bendRadius;
+
+    public HandlesData GetHandlesData()
+    {
+        HandlesData data = new HandlesData();
+        data.Center = this._bendTarget.transform.TransformPoint(this._bendCenter);
+        data.Normal = this._bendTransform.forward;
+        data.PtA = this._worldPointA;
+        data.PtB = this._worldPointB;
+        data.Radius = this._bendRadius;
+        return data;
+    }
 
     public void GetRenderer()
     {
@@ -42,7 +70,7 @@ public class PaperRig : MonoBehaviour
             return;
         }
 
-        var obj = this._targetObj;
+        var obj = this._bendTarget;
 
         this._collider = obj.GetComponent<BoxCollider>();
 
@@ -59,7 +87,6 @@ public class PaperRig : MonoBehaviour
         }
     }
 
-
     public void GetPointsAB()
     {
         if (this.IsValid == false)
@@ -67,7 +94,7 @@ public class PaperRig : MonoBehaviour
             return;
         }
 
-        var objTransform = this._targetObj.transform;
+        var objTransform = this._bendTarget.transform;
         var bendNormal = this._bendTransform.forward;
         var bendPosition = this._bendTransform.position;
         var bounds = this._collider.bounds;
@@ -110,7 +137,7 @@ public class PaperRig : MonoBehaviour
         }
 
         // Prevent swapping of start/end points
-        var localPt1 = objTransform.InverseTransformPoint(projPts[indexB]);
+        var localPt1 = this._bendTransform.InverseTransformPoint(projPts[indexB]);
         if (localPt1.x < 0)
         {
             var a = indexA;
@@ -119,7 +146,14 @@ public class PaperRig : MonoBehaviour
             indexB = a;
         }
 
+        if (indexA == -1 || indexB == -1)
+        {
+            return;
+        }
+
         // Assign values
+        this._worldPointA = projPts[indexA];
+        this._worldPointB = projPts[indexB];
         this._pointA = objTransform.InverseTransformPoint(projPts[indexA]);
         this._pointB = objTransform.InverseTransformPoint(projPts[indexB]);
     }
@@ -142,17 +176,19 @@ public class PaperRig : MonoBehaviour
             this._propertyBlock = new MaterialPropertyBlock();
         }
 
+        var localPos = this._bendTransform.InverseTransformPoint(this._bendTarget.transform.TransformPoint(this._bendCenter));
+
         this._propertyBlock.SetMatrix(BendMatrix, this._bendTransform.worldToLocalMatrix);
         this._propertyBlock.SetMatrix(InvBendMatrix, this._bendTransform.localToWorldMatrix);
         this._propertyBlock.SetVector(PtA, this._pointA);
         this._propertyBlock.SetVector(PtB, this._pointB);
-        this._propertyBlock.SetVector(Center, this._bendCenter);
+        this._propertyBlock.SetVector(Center, localPos);
         this._propertyBlock.SetFloat(Radius, this._bendRadius);
 
         this._renderer.SetPropertyBlock(this._propertyBlock);
     }
 
-    public void BendRenerer()
+    public void BendRenderer()
     {
         this.GetPointsAB();
         this.GetBendCenter();
@@ -164,20 +200,20 @@ public class PaperRig : MonoBehaviour
         this.GetRenderer();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        this.BendRenerer();
+        this.BendRenderer();
     }
 
     private void OnValidate()
     {
         this.GetRenderer();
-        this.BendRenerer();
+        this.BendRenderer();
     }
 
     private bool Validate()
     {
-        if (this._targetObj == null || this._bendTransform == null)
+        if (this._bendTarget == null || this._bendTransform == null)
         {
             return false;
         }
