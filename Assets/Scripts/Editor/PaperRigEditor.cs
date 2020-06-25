@@ -4,7 +4,7 @@ using UnityEngine;
 [CustomEditor(typeof(PaperRig))]
 public class PaperRigEditor : Editor
 {
-    public static readonly Color SolidColor = new Color(0.0f, 0.6f, 0.95f, 0.5f);
+    public static readonly Color SolidColor = new Color(0.0f, 0.6f, 0.95f, 0.8f);
     public static readonly Color SemiTransparentColor = new Color(0.0f, 0.3f, 0.6f, 0.3f);
 
     private PaperRig _obj;
@@ -28,14 +28,10 @@ public class PaperRigEditor : Editor
         Handles.SphereHandleCap("CenterGizmo".GetHashCode(), data.Center, Quaternion.identity, size, EventType.Repaint);
         Handles.DrawDottedLine(data.PtA, data.PtB, 3);
 
-        var points = data.boundingPointsList.ToArray();
-        foreach (var p in points)
+        if (data.boundingPointsList != null)
         {
-            //Handles.dr
+            var points = data.boundingPointsList.ToArray();
+            Handles.DrawSolidRectangleWithOutline(points, SemiTransparentColor, SolidColor);
         }
-        
-        Handles.DrawSolidRectangleWithOutline(points, SemiTransparentColor, SolidColor);
-        
-        //Handles.DrawAAConvexPolygon(data.boundingPointsList.ToArray());
     }
 }

@@ -33,7 +33,7 @@ public class PaperRig : MonoBehaviour
     /// GameObjects and state fields 
     /// </summary>
     [SerializeField] private GameObject _paperObj = null;
-    [SerializeField] private Vector2 _paperSize = Vector2.one;
+    [SerializeField] private Vector2 _paperSize = new Vector2(10f, 10f);
     [SerializeField] private Transform _bendTransform = null;
     [SerializeField] private float _bendRadius = 10;
     [SerializeField] private float _bendPhase = 0;
@@ -58,12 +58,17 @@ public class PaperRig : MonoBehaviour
     public HandlesData GetHandlesData()
     {
         HandlesData data = new HandlesData();
-        data.Center = this._bendCenter;
-        data.Normal = this._bendTransform.forward;
-        data.PtA = this._worldPointA;
-        data.PtB = this._worldPointB;
-        data.Radius = this._bendRadius;
-        data.boundingPointsList = this._originalBounds;
+
+        if (this.IsValid == true)
+        {
+            data.Center = this._bendCenter;
+            data.Normal = this._bendTransform.forward;
+            data.PtA = this._worldPointA;
+            data.PtB = this._worldPointB;
+            data.Radius = this._bendRadius;
+            data.boundingPointsList = this._originalBounds;
+        }
+
         return data;
     }
 
@@ -167,6 +172,11 @@ public class PaperRig : MonoBehaviour
 
     public void GetBendCenter()
     {
+        if (this.IsValid == false)
+        {
+            return;
+        }
+
         this._bendCenter = this._worldPointB + (this._bendTransform.up * this._bendRadius);
     }
 
