@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: NC_SubGraph
+  m_Name: MAT_NC_SubGraph
   m_Shader: {fileID: -6465566751694194690, guid: b14780fd7a8b101488f47849f53142d7,
     type: 3}
   m_ShaderKeywords: 
