@@ -98,7 +98,7 @@ public class BendRig : MonoBehaviour
             var b = pt1;
             pt0 = b;
             pt1 = a;
-            Debug.Log("Swap start/end");
+            //Debug.Log("Swap start/end");
         }
 
 
