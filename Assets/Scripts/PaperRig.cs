@@ -215,6 +215,7 @@ public class PaperRig : MonoBehaviour
         this._propertyBlock.SetVector(PtB, this._pointB);
         this._propertyBlock.SetVector(Center, localPos);
         this._propertyBlock.SetFloat(Radius, this._bendRadius);
+        this._propertyBlock.SetFloat(Offset, this._bendPhase);
 
         this._renderer.SetPropertyBlock(this._propertyBlock);
     }
