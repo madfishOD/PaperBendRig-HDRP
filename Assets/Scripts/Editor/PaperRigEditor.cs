@@ -9,6 +9,16 @@ public class PaperRigEditor : Editor
 
     private PaperRig _obj;
 
+
+    public override void OnInspectorGUI()
+    {
+	    //EditorGUILayout.BeginHorizontal();
+	    //this._showHandles = EditorGUILayout.Toggle(this._showHandles, GUILayout.MaxWidth(20));
+	    //EditorGUILayout.LabelField("Show Handles");
+     //   EditorGUILayout.EndHorizontal();
+        base.OnInspectorGUI();
+    }
+
     private void OnEnable()
     {
         this._obj = (PaperRig)target;
@@ -16,22 +26,31 @@ public class PaperRigEditor : Editor
 
     private void OnSceneGUI()
     {
-        var data = this._obj.GetHandlesData();
+	    this.DrawHandles();
+    }
 
-        Handles.color = SemiTransparentColor;
-        Handles.DrawSolidDisc(data.Center, data.Normal, data.Radius);
+    private void DrawHandles()
+    {
+	    var data = this._obj.GetHandlesData();
+	    if (data.ShowHandles == false)
+	    {
+			return;
+	    }
 
-        Handles.color = SolidColor;
-        Handles.DrawWireDisc(data.Center, data.Normal, data.Radius);
+	    Handles.color = SemiTransparentColor;
+	    Handles.DrawSolidDisc(data.Center, data.Normal, data.Radius);
 
-        float size = 0.3f;
-        Handles.SphereHandleCap("CenterGizmo".GetHashCode(), data.Center, Quaternion.identity, size, EventType.Repaint);
-        Handles.DrawDottedLine(data.PtA, data.PtB, 3);
+	    Handles.color = SolidColor;
+	    Handles.DrawWireDisc(data.Center, data.Normal, data.Radius);
 
-        if (data.boundingPointsList != null)
-        {
-            var points = data.boundingPointsList.ToArray();
-            Handles.DrawSolidRectangleWithOutline(points, SemiTransparentColor, SolidColor);
-        }
+	    float size = 0.3f;
+	    Handles.SphereHandleCap("CenterGizmo".GetHashCode(), data.Center, Quaternion.identity, size, EventType.Repaint);
+	    Handles.DrawDottedLine(data.PtA, data.PtB, 3);
+
+	    if (data.boundingPointsList != null)
+	    {
+		    var points = data.boundingPointsList.ToArray();
+		    Handles.DrawSolidRectangleWithOutline(points, SemiTransparentColor, SolidColor);
+	    }
     }
 }

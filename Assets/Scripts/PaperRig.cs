@@ -5,6 +5,7 @@ using UnityEngine;
 
 public struct HandlesData
 {
+	public bool ShowHandles;
     public Vector3 Center;
     public Vector3 Normal;
     public Vector3 PtA;
@@ -32,6 +33,7 @@ public class PaperRig : MonoBehaviour
     /// <summary>
     /// GameObjects and state fields 
     /// </summary>
+    [SerializeField] private bool _showHandles = true;
     [SerializeField] private GameObject _paperObj = null;
     [SerializeField] private Vector2 _paperSize = new Vector2(10f, 10f);
     [SerializeField] private Transform _bendTransform = null;
@@ -61,6 +63,7 @@ public class PaperRig : MonoBehaviour
 
         if (this.IsValid == true)
         {
+	        data.ShowHandles = this._showHandles;
             data.Center = this._bendCenter;
             data.Normal = this._bendTransform.forward;
             data.PtA = this._worldPointA;
