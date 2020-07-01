@@ -35,8 +35,10 @@ public class PaperRig : MonoBehaviour
     /// </summary>
     [SerializeField] private bool _showHandles = true;
     [SerializeField] private GameObject _paperObj = null;
+    [SerializeField] [HideInInspector]
+    private GameObject _bendTransformObj = null;
     [SerializeField] private Vector2 _paperSize = new Vector2(10f, 10f);
-    [SerializeField] private Transform _bendTransform = null;
+    [SerializeField] private float _bendAxisRotation = 0;
     [SerializeField] private float _bendRadius = 10;
     [SerializeField] private float _bendPhase = 0;
 
@@ -53,7 +55,7 @@ public class PaperRig : MonoBehaviour
 
     public Vector3 BendCenter => this._paperObj.transform.TransformPoint(this._bendCenter);
 
-    public Vector3 BendNormal => this._bendTransform.forward;
+    public Vector3 BendNormal => this._bendTransformObj.transform.forward;
 
     public float BendRadius => this._bendRadius;
 
@@ -65,7 +67,7 @@ public class PaperRig : MonoBehaviour
         {
 	        data.ShowHandles = this._showHandles;
             data.Center = this._bendCenter;
-            data.Normal = this._bendTransform.forward;
+            data.Normal = this._bendTransformObj.transform.forward;
             data.PtA = this._worldPointA;
             data.PtB = this._worldPointB;
             data.Radius = this._bendRadius;
@@ -92,6 +94,15 @@ public class PaperRig : MonoBehaviour
             Debug.LogException(new NullReferenceException(), this);
         }
     }
+    public void SetBendAxisRotation(float angle)
+    {
+	    if (this._bendTransformObj == null)
+	    {
+			return;
+	    }
+
+	    this._bendTransformObj.transform.localEulerAngles = new Vector3(0, angle, 0);
+    }
 
     public void GetPointsAB()
     {
@@ -101,8 +112,8 @@ public class PaperRig : MonoBehaviour
         }
 
         var objTransform = this._paperObj.transform;
-        var bendNormal = this._bendTransform.forward;
-        var bendPosition = this._bendTransform.position;
+        var bendNormal = this._bendTransformObj.transform.forward;
+        var bendPosition = this._bendTransformObj.transform.position;
 
         var pos = this._paperObj.transform.position;
         var width = this._paperSize.x * 0.5f;
@@ -152,7 +163,7 @@ public class PaperRig : MonoBehaviour
         }
 
         // Prevent swapping of start/end points
-        var localPt1 = this._bendTransform.InverseTransformPoint(projPts[indexB]);
+        var localPt1 = this._bendTransformObj.transform.InverseTransformPoint(projPts[indexB]);
         if (localPt1.x < 0)
         {
             var a = indexA;
@@ -180,7 +191,7 @@ public class PaperRig : MonoBehaviour
             return;
         }
 
-        this._bendCenter = this._worldPointB + (this._bendTransform.up * this._bendRadius);
+        this._bendCenter = this._worldPointB + (this._bendTransformObj.transform.up * this._bendRadius);
     }
 
     public void MaterialPropertyBlockUpdate()
@@ -196,10 +207,10 @@ public class PaperRig : MonoBehaviour
             this._propertyBlock = new MaterialPropertyBlock();
         }
 
-        var localPos = this._bendTransform.InverseTransformPoint(this._bendCenter);
+        var localPos = this._bendTransformObj.transform.InverseTransformPoint(this._bendCenter);
 
-        this._propertyBlock.SetMatrix(BendMatrix, this._bendTransform.worldToLocalMatrix);
-        this._propertyBlock.SetMatrix(InvBendMatrix, this._bendTransform.localToWorldMatrix);
+        this._propertyBlock.SetMatrix(BendMatrix, this._bendTransformObj.transform.worldToLocalMatrix);
+        this._propertyBlock.SetMatrix(InvBendMatrix, this._bendTransformObj.transform.localToWorldMatrix);
         this._propertyBlock.SetVector(PtA, this._pointA);
         this._propertyBlock.SetVector(PtB, this._pointB);
         this._propertyBlock.SetVector(Center, localPos);
@@ -220,6 +231,26 @@ public class PaperRig : MonoBehaviour
         this.GetRenderer();
     }
 
+    private bool Validate()
+    {
+
+	    if (this._paperObj == null)
+	    {
+		    return false;
+	    }
+
+	    if (this._bendTransformObj == null)
+	    {
+		    this._bendTransformObj = new GameObject {name = "BendTransformObj"};
+		    this._bendTransformObj.transform.parent = this._paperObj.transform;
+		    this._bendTransformObj.transform.localPosition = Vector3.zero;
+		    this._bendTransformObj.transform.localRotation = Quaternion.identity;
+		    this._bendTransformObj.hideFlags = HideFlags.HideInHierarchy;
+	    }
+
+        return true;
+    }
+
     private void LateUpdate()
     {
         this.BendRenderer();
@@ -229,15 +260,6 @@ public class PaperRig : MonoBehaviour
     {
         this.GetRenderer();
         this.BendRenderer();
-    }
-
-    private bool Validate()
-    {
-        if (this._paperObj == null || this._bendTransform == null)
-        {
-            return false;
-        }
-
-        return true;
+		this.SetBendAxisRotation(this._bendAxisRotation);
     }
 }
