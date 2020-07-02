@@ -53,12 +53,6 @@ public class PaperRig : MonoBehaviour
 
     public bool IsValid => this.Validate();
 
-    public Vector3 BendCenter => this._paperObj.transform.TransformPoint(this._bendCenter);
-
-    public Vector3 BendNormal => this._bendTransformObj.transform.forward;
-
-    public float BendRadius => this._bendRadius;
-
     public HandlesData GetHandlesData()
     {
         HandlesData data = new HandlesData();
