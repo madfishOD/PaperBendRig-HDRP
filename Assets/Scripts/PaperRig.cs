@@ -27,8 +27,8 @@ public class PaperRig : MonoBehaviour
     private static readonly int Center = Shader.PropertyToID("_center");
     private static readonly int Radius = Shader.PropertyToID("_radius");
     private static readonly int Offset = Shader.PropertyToID("_offset");
-    private static readonly int PtA = Shader.PropertyToID("_startPt");
-    private static readonly int PtB = Shader.PropertyToID("_endPt");
+    private static readonly int PtA = Shader.PropertyToID("_PtA");
+    private static readonly int PtB = Shader.PropertyToID("_PtB");
 
     /// <summary>
     /// GameObjects and state fields 
