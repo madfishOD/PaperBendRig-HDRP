@@ -249,6 +249,7 @@ public class PaperRig : MonoBehaviour
     private void LateUpdate()
     {
         this.BendRenderer();
+        this.SetBendAxisRotation(this._bendAxisRotation);
     }
 
     private void OnValidate()
