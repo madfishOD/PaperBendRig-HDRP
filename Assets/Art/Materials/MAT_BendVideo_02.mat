@@ -92,7 +92,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 8600000, guid: a811f944d21f385408f4dfacc8b6eda9, type: 2}
+        m_Texture: {fileID: 2800000, guid: 45b0bc3ea55f1ff4b99246f08de650dd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
@@ -265,7 +265,7 @@ Material:
     - Vector2_A7FFD1F0: {r: 1, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.76594275, g: 0.773, b: 0.674056, a: 1}
     - _DiffusionProfileAsset: {r: 2.2888926e+38, g: 1.2389358e-26, b: 7.69327e-37,
         a: 0.00018220427}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
