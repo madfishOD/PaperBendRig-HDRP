@@ -35,10 +35,10 @@ public class PaperRig : MonoBehaviour
     /// </summary>
     [SerializeField] private bool _showHandles = true;
     [SerializeField] private GameObject _paperObj = null;
-    [SerializeField] [HideInInspector]
+    [SerializeField]
     private GameObject _bendTransformObj = null;
     [SerializeField] private Vector2 _paperSize = new Vector2(10f, 10f);
-    [SerializeField] private float _bendAxisRotation = 0;
+    [SerializeField] [Range(0, 360)] private float _bendAxisRotation = 0;
     [SerializeField] private float _bendRadius = 10;
     [SerializeField] private float _bendPhase = 0;
 
